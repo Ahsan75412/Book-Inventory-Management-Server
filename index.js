@@ -25,6 +25,7 @@ async function run(){
     try{
         await client.connect();
         const productCollection = client.db('bookInventory').collection('product');
+        // const reviewCollection = database.collection('review');
 
      app.get('/product' , async (req,res) => {
         const query = {};
@@ -42,8 +43,19 @@ async function run(){
         
     });
 
+    //post a data from input fields to client side
+    app.post('/product', async(req,res)=>{
+        const newProduct = req.body;
+        const result = await productCollection.insertOne(newProduct);
+        res.send(result);
+    });
 
-    }
+
+
+
+
+
+}
     finally{
         // await client.close();
     }
