@@ -60,7 +60,16 @@ async function run() {
             const result = await productCollection.updateOne(query, { $set: {quantity: newQuantity} }, options);
             res.json(result);
            
+        });
+
+        // delete a data 
+        app.delete('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await productCollection.deleteOne(query);
+            res.json(result);
         })
+
 
 
 
