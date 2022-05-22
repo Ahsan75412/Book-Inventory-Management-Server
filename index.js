@@ -21,6 +21,9 @@ app.use(express.json());
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.bewwo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+// review collection
+const reviewCollection = client.db('bookInventory').collection('review');
+const orderCollection = client.db('bookInventory').collection('order');
 async function run() {
     try {
         await client.connect();
@@ -57,9 +60,9 @@ async function run() {
             const query = { _id: new ObjectId(id) };
             const options = { upsert: true };
             const newQuantity = req.body.updatedQuantity;
-            const result = await productCollection.updateOne(query, { $set: {quantity: newQuantity} }, options);
+            const result = await productCollection.updateOne(query, { $set: { quantity: newQuantity } }, options);
             res.json(result);
-           
+
         });
 
         // delete a data 
@@ -70,22 +73,45 @@ async function run() {
             res.json(result);
         })
 
+        // add/post a  reviews
+        app.post('/review', async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
+            console.log(review);
+            res.json(result);
+        });
+
+        // get all reviews
+        app.get('/review', async (req, res) => {
+            const cursor = reviewCollection.find({});
+            const reviews = await cursor.toArray();
+            res.send(reviews);
+        });
 
 
+        // get a order collection
+        app.get('/order', async (req, res) => {
+            const cursor = orderCollection.find({});
+            const orders = await cursor.toArray();
+            res.send(orders);
+        })
 
+        // post a order collection
+        app.post('/order', async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.json(result);
+        })
 
-        // add reviews
-        // app.post('/reviews', async (req, res) => {
-        //     const review = req.body;
-        //     const result = await reviewCollection.insertOne(review);
-        //     res.json(result);
-        // });
+        // filter items for get the user mail
 
-        // app.get('/reviews', async (req, res) => {
-        //     const cursor = reviewCollection.find({});
-        //     const reviews = await cursor.toArray();
-        //     res.send(reviews);
-        // });
+        app.post('/items', async (req, res) => {
+            const email = req.body.author;
+            const query = { email: email };
+            const cursor = await productCollection.find(query).toArray();
+            res.send(cursor);
+
+        });
 
 
     }
