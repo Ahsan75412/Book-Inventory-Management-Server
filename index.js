@@ -120,7 +120,6 @@ async function run() {
         })
 
         // filter items for get the user mail
-
         app.post('/items', async (req, res) => {
             const email = req.body.author;
             const query = { email: email };
